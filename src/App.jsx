@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
 import Web3 from 'web3';
-// import Transferall from './function.js';
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
@@ -39,13 +38,10 @@ function App() {
 
     if (accounts.length !== 0) {
       const account = ethers.utils.getAddress(accounts[0]);
-      console.log("Found an authorized account:", account);
       setCurrentAccount(account);
-      console.log(currentAccount,"current address");
      
 
       let chainId = await ethereum.request({ method: 'eth_chainId' });
-      console.log("Connected to chain " + chainId);
     
       const goerliChainId = "0x5"; 
       if (chainId !== goerliChainId) {
@@ -70,7 +66,6 @@ function App() {
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
       let chainId = await ethereum.request({ method: 'eth_chainId' });
-      console.log("Connected to chain " + chainId);
     
       const goerliChainId = "0x5"; 
       if (chainId !== goerliChainId) {
@@ -78,7 +73,6 @@ function App() {
       }
 
       
-      console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]); 
       requestnftdata()
       nftcontractsowned()
@@ -103,7 +97,7 @@ function App() {
       .request(options)
       .then(function (response) {
         let data = response.data
-         setnftdata(data.result);
+        setnftdata(data.result);
       })
       .catch(function (error) {
         console.error(error);
@@ -164,7 +158,6 @@ function App() {
       const { ethereum } = window;
   
       if (ethereum) {
-        // const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/eth_goerli");
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner();
         const ERC721_ABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"balance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"operator","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"owner","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"_approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}]
