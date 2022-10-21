@@ -94,7 +94,7 @@ function App() {
     params: {chain: 'goerli', format: 'decimal'},
     headers: {
       accept: 'application/json',
-      'X-API-Key': 'OALLEXDPSYlwQ7u2A67gUCAY0TRLM5yjAVdjwHApeS1bnAlD03keIq9KpJDi8sG7'
+      'X-API-Key': 'API'
     }
   };
 
