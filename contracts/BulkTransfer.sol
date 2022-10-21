@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
         for (uint i = 0; i < contracts.length; i++) {
 
-            IERC721(contracts[i]).transferFrom(msg.sender,_target,ids[i]);
+            IERC721(contracts[i]).safeTransferFrom(msg.sender,_target,ids[i]);
         }
     }
 }

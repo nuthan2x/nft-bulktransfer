@@ -2,21 +2,21 @@ import './App.css';
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import axios from "axios";
+import Web3 from 'web3';
 // import Transferall from './function.js';
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
-  const [chainnetwork, setchainnetwork] = useState(undefined);
   const [nftdata, setnftdata] = useState(undefined);
   const [nftowned_contracts, setnftowned_contracts] = useState([]);
-  const [txreceipts, settxreceipts] = useState([]);  
-  const [transferalltx, settransferalltx] = useState(undefined);
+  const [nftownedids, setnftownedids] = useState([]);
+  const [allcontractsarray, setallcontractsarray] = useState([]);
   const [targetaddress, settargetaddress] = useState(undefined);
 
   useEffect(() => {
     checkIfWalletIsConnected()
     requestnftdata()
-  }, []);
+  }, [currentAccount]);
 
   useEffect(() => {
     console.log('nftdata: ', nftdata);
@@ -50,8 +50,6 @@ function App() {
       const goerliChainId = "0x5"; 
       if (chainId !== goerliChainId) {
        alert("You are not connected to the Goerli Test Network!");
-      }else{
-        setchainnetwork("Goerli")
       }
     } else {
       console.log("No authorized account found");
@@ -92,46 +90,75 @@ function App() {
 
   const options = {
     method: 'GET',
-    url: 'https://api.nftport.xyz/v0/accounts/0x78351284f83A52b726aeEe6C2ceBBe656124434c',
-    params: {chain: 'goerli'},
+    url: `https://deep-index.moralis.io/api/v2/${currentAccount}/nft`,
+    params: {chain: 'goerli', format: 'decimal'},
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: '58d75fec-de0b-427c-985a-2f7ee9c83e21'
+      accept: 'application/json',
+      'X-API-Key': 'OALLEXDPSYlwQ7u2A67gUCAY0TRLM5yjAVdjwHApeS1bnAlD03keIq9KpJDi8sG7'
     }
-    //https://docs.nftport.xyz/docs/nftport/b3A6MjE0MDYzNzM-retrieve-nf-ts-owned-by-an-account      (=>>>>> API provider)
   };
-  
+
   const requestnftdata =  () => {
-      axios.request(options).then(function (response) {
+    axios
+      .request(options)
+      .then(function (response) {
         let data = response.data
-      setnftdata(data.nfts);
-      // console.log(nftdata);
-    }).catch(function (error) {
-      console.error(error);
-    });
+         setnftdata(data.result);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
   }
 
   const nftcontractsowned = () => {
     let contractarray = []
     for (let i = 0; i < nftdata?.length; i++) {
 
-     let currentnft = nftdata[i].contract_address;
+    let currentnft = Web3.utils.toChecksumAddress(nftdata[i].token_address);
      contractarray.push(currentnft);  
     }
 
-    let filteredarray = [] 
-    for (let j = 0; j < contractarray?.length; j++) {
-      contractarray[j] !== contractarray[j - 1] && filteredarray.push(contractarray[j])
+    let allcontractsarray = []   
+    for (let index = 0; index < nftdata?.length; index++) {
+      allcontractsarray.push(Web3.utils.toChecksumAddress(nftdata[index].token_address));
     }
     
-    // console.log('nftowned_contracts: ', contractarray);
-    setnftowned_contracts(filteredarray)
+    let filteredarray = []
+    const [head, ...tail] = nftdata
+
+    const output = tail.reduce( 
+      (prev, current) => {
+        if (!prev.map(o => o.token_address).includes(current.token_address)) {
+          prev.push(current)
+        }
+        return prev
+      },
+      [head]
+    )
+    console.log('output: ', output);
+
+    let refilter =[]
+    for (let p = 0; p < output?.length; p++) {
+      refilter.push(Web3.utils.toChecksumAddress(output[p].token_address))
+    }
+    filteredarray = refilter;
+
+
+    let filtered_idarray = []
+    for (let k = 0; k < contractarray?.length; k++) {
+      filtered_idarray.push(nftdata[k].token_id)
+    }
+    
+   
+
+    setallcontractsarray(allcontractsarray);
+    setnftowned_contracts(filteredarray);
+    setnftownedids(filtered_idarray);
     console.log('filteredarray: ', filteredarray);
   }
 
-  const BULKtransfer_contract = "0xD223EC434234ee5Bb945Ab8DE9d3564b6098ACba"
+  const BULKtransfer_contract = "0xd6476EF3a78278609d4F07954C9554AF2C201Af4"
   const BULK_ABI =[{"inputs":[{"internalType":"address[]","name":"contracts","type":"address[]"},{"internalType":"uint256[]","name":"ids","type":"uint256[]"},{"internalType":"address","name":"_target","type":"address"}],"name":"transferall","outputs":[],"stateMutability":"nonpayable","type":"function"}]
-  
   const makeapproval = async() => {
     try {
       const { ethereum } = window;
@@ -146,9 +173,9 @@ function App() {
           try {
             const connectedContract = new ethers.Contract(nftowned_contracts[i],ERC721_ABI,signer);
             const txn = await connectedContract.setApprovalForAll(BULKtransfer_contract,true);
+            console.log(`approve ${i} `, `https://goerli.etherscan.io/tx/${txn.hash}`);
             let receipt = await  txn.wait();
             console.log('receipt: ', receipt);
-            settxreceipts(prev => [...prev,txn]);
           } catch(error) {
             console.log(error)
             break;
@@ -167,26 +194,20 @@ function App() {
   const bulktransfer = async () => {
     try {
       const { ethereum } = window;
-      let contractsarray = []
-      let idarray = []
-      
-      nftdata?.map(nft => {
-        contractsarray.push(nft.contract_address);
-        idarray.push(nft.token_id)
-      })
-  
+     
+
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner();
         const connectedContract = new ethers.Contract(BULKtransfer_contract,BULK_ABI,signer);
 
-        console.log('idarray: ', idarray);
-        console.log('contractsarray: ', contractsarray);
+        console.log('idarray: ', nftownedids);
+        console.log('contractsarray: ', allcontractsarray);
         console.log(targetaddress)
           try {
-            const txn = await connectedContract.transferall(contractsarray,idarray,targetaddress);
+            const txn = await connectedContract.transferall(allcontractsarray,nftownedids,targetaddress);
+            console.log('bulktransaction: ', `https://goerli.etherscan.io/tx/${txn.hash}`  );
             let receipt = await  txn.wait();
-            settransferalltx(txn);
             console.log('receipt: ', receipt);
           } catch(error) {
             console.log(error)
@@ -210,7 +231,6 @@ function App() {
         <input type="text" placeholder='address' onChange={e => settargetaddress(e.target.value)}/>
        </form>
       </header>
-      {/* <Transferall nftowned_contracts = {nftowned_contracts} nftdata= {nftdata}/> */}
       <div className="App-body">
         <button className="approveall" onClick={makeapproval}>
             approveall
