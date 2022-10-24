@@ -9,5 +9,30 @@ button{
 }
 
 .App-header{
-  margin-top: 200px;
+  margin-top: 20px;
+}
+
+h4{
+  color: rgb(11, 39, 115);
+}
+
+.txns{
+  padding: 15px;
+  border: 1px solid blanchedalmond;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: auto;
+  margin-top: 25px;
+}
+
+.connektwalletnav{
+
+  display: flex;
+  flex-direction: flex-end;
+}
+
+.connektwalletnav button{
+  margin-left: auto;
+  margin-right: 5%;
+  margin-top: 20px;
 }

@@ -11,6 +11,8 @@ function App() {
   const [nftownedids, setnftownedids] = useState([]);
   const [allcontractsarray, setallcontractsarray] = useState([]);
   const [targetaddress, settargetaddress] = useState(undefined);
+  const [approvaltxs, setapprovaltxs] = useState([])
+  const [transferalltxn, settransferalltxn] = useState(undefined);
 
   useEffect(() => {
     checkIfWalletIsConnected()
@@ -118,44 +120,16 @@ function App() {
     }
     
     let filteredarray = []
-    // const [head, ...tail] = nftdata
+    let only_contractarray = []     
 
-    // const output = tail.reduce( 
-    //   (prev, current) => {
-    //     if (!prev.map(o => o.token_address).includes(current.token_address)) {
-    //       prev.push(current)
-    //     }
-    //     return prev
-    //   },
-    //   [head]
-    // )
-    // console.log('output: ', output);
-    let only_contractarray = []  
-    
+    for (let i = 0; i < nftdata?.length; i++) {
+      only_contractarray.push(Web3.utils.toChecksumAddress(nftdata[i].token_address));
+      
+    }
 
-      for (let i = 0; i < nftdata?.length; i++) {
-        only_contractarray.push(Web3.utils.toChecksumAddress(nftdata[i].token_address));
-        
-      }
-
-      // for (let i = 0; i < nftdata?.length; i++) {
-      //   let currentcontract = nftdata[i].token_address;
-      //   for (let j = 0; j < only_contractarray?.length; j++) {
-      //     if (i !== j) {
-      //       if(currentcontract === only_contractarray[j]) {
-      //         only_contractarray[i] = 0
-      //         indexes.push(i)
-      //       } 
-      //     }
-          
-      //   }
-        
-      // }
-      const sortedarray = only_contractarray.sort().reverse()
-      console.log('sortedarray: ', sortedarray);
+    const sortedarray = only_contractarray.sort().reverse()
+    console.log('sortedarray: ', sortedarray);
  
-    
-
     let refilter = []
     for (let k = 0; k < only_contractarray?.length; k++) {
       if(only_contractarray[k] !== only_contractarray[k + 1]) {
@@ -163,19 +137,13 @@ function App() {
       }
       
     }
-    console.log('refilter: ', refilter);
-    // for (let p = 0; p < output?.length; p++) {
-    //   refilter.push(Web3.utils.toChecksumAddress(output[p].token_address))
-    // }
     filteredarray = refilter;
 
 
     let filtered_idarray = []
     for (let k = 0; k < contractarray?.length; k++) {
       filtered_idarray.push(nftdata[k].token_id)
-    }
-    
-   
+    }  
 
     setallcontractsarray(allcontractsarray);
     setnftowned_contracts(filteredarray);
@@ -198,7 +166,8 @@ function App() {
           try {
             const connectedContract = new ethers.Contract(nftowned_contracts[i],ERC721_ABI,signer);
             const txn = await connectedContract.setApprovalForAll(BULKtransfer_contract,true);
-            console.log(`approve ${i} `, `https://goerli.etherscan.io/tx/${txn.hash}`);
+            console.log(`approve ${i + 1} `, `https://goerli.etherscan.io/tx/${txn.hash}`);
+            setapprovaltxs(prev => [...prev,`https://goerli.etherscan.io/tx/${txn.hash}`]);
             let receipt = await  txn.wait();
             console.log('receipt: ', receipt);
           } catch(error) {
@@ -234,38 +203,60 @@ function App() {
           try {
             const txn = await connectedContract.transferall(allcontractsarray,nftownedids,targetaddress);
             console.log('bulktransaction: ', `https://goerli.etherscan.io/tx/${txn.hash}`  );
+            settransferalltxn(`https://goerli.etherscan.io/tx/${txn.hash}`)
             let receipt = await  txn.wait();
             console.log('receipt: ', receipt);
           } catch(error) {
             console.log(error)
           }
-
       } else {
         console.log("Ethereum object doesn't exist!");
       }
     } catch (error) {
       console.log(error)
+      alert("transferall failed");
     }
   }
 
 
   return (
     <div className="App">
+      <div className='connektwalletnav'>
+        <button onClick={connectWallet} > {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
+      </div>
+      
       <header className="App-header">
+      <h4>alert : if you own an NFT that isn't deployed with ERC 721/ERC 1155 token standards, approveall will pass but tranferall will likely fail</h4>
+      <label htmlFor=""> Wallet :</label>
        <button onClick={connectWallet}> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
        <form action="">
        <label htmlFor="">target : </label>
-        <input type="text" placeholder='address' onChange={e => settargetaddress(e.target.value)}/>
+        <input type="text" placeholder='address' onChange={e => settargetaddress(e.target.value)} />
        </form>
       </header>
       <div className="App-body">
-        {/* <button className="approveall" onClick={makeapproval}>
+        <button className="approveall" onClick={makeapproval}>
             approveall
-        </button> */}
+        </button>
         <button className="transferall" onClick={bulktransfer}>
             transferall
         </button>
-    </div>
+
+        {approvaltxs[0] &&  <div className='txns'>
+          {approvaltxs && <div className="approvaltxns">
+            {approvaltxs.map((each,i) => {
+              return (
+                <h3 key={i}>approve {i+1} : <a href={each} target="_blank" rel="noopener noreferrer">view on etherscan</a></h3>
+              )
+            })}
+          </div>}
+          
+          {transferalltxn && <div className="transferalltxn">
+            <h3>bulktransfer : <a href={transferalltxn} target="_blank" rel="noopener noreferrer">view tx in etherscan</a></h3>
+          </div>}
+        </div>}
+
+      </div>
     </div>
   );
 }
