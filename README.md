@@ -1,13 +1,4 @@
-# Sample Hardhat Project
+Transfers all nfts from your wallet to another wallet/account
+If you own an NFT that isn't deployed with ERC 721/ERC 1155 token standards, approveall will pass but tranferall will likely fail
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+view demo  : https://youtu.be/RRHe6AfTJuo?t=9
