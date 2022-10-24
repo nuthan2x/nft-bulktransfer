@@ -91,8 +91,13 @@ function App() {
     headers: {
       accept: 'application/json',
       'X-API-Key': "OALLEXDPSYlwQ7u2A67gUCAY0TRLM5yjAVdjwHApeS1bnAlD03keIq9KpJDi8sG7"
- } }         'X-API-Key': "OALLEXDPSYlwQ7u2A67gUCAY0TRLM5yjAVdjwHApeS1bnAlD03keIq9KpJDi8sG7"
-nction (response) {
+    }
+  };
+
+  const requestnftdata =  () => {
+    axios
+      .request(options)
+      .then(function (response) {
         let data = response.data
         setnftdata(data.result);
       })
@@ -100,6 +105,7 @@ nction (response) {
         console.error(error);
       });
   }
+
 
   const nftcontractsowned = () => {
     let contractarray = []
@@ -216,7 +222,7 @@ nction (response) {
 
   return (
     <div className="App">
-      <<button onClick={connectWallet} cl> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
+      <button onClick={connectWallet} cl> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
             <header className="App-header">
       <h4>alert : if you own an NFT that isn't deployed with ERC 721/ERC 1155 token standards, approveall will pass but tranferall will likely fail</h4>
       <label htmlFor=""> Wallet :</label>
