@@ -88,7 +88,7 @@ function App() {
     params: {chain: 'goerli', format: 'decimal'},
     headers: {
       accept: 'application/json',
-      'X-API-Key': 'API'
+      'X-API-Key': "OALLEXDPSYlwQ7u2A67gUCAY0TRLM5yjAVdjwHApeS1bnAlD03keIq9KpJDi8sG7"
     }
   };
 
@@ -118,23 +118,55 @@ function App() {
     }
     
     let filteredarray = []
-    const [head, ...tail] = nftdata
+    // const [head, ...tail] = nftdata
 
-    const output = tail.reduce( 
-      (prev, current) => {
-        if (!prev.map(o => o.token_address).includes(current.token_address)) {
-          prev.push(current)
-        }
-        return prev
-      },
-      [head]
-    )
-    console.log('output: ', output);
+    // const output = tail.reduce( 
+    //   (prev, current) => {
+    //     if (!prev.map(o => o.token_address).includes(current.token_address)) {
+    //       prev.push(current)
+    //     }
+    //     return prev
+    //   },
+    //   [head]
+    // )
+    // console.log('output: ', output);
+    let only_contractarray = []  
+    
 
-    let refilter =[]
-    for (let p = 0; p < output?.length; p++) {
-      refilter.push(Web3.utils.toChecksumAddress(output[p].token_address))
+      for (let i = 0; i < nftdata?.length; i++) {
+        only_contractarray.push(Web3.utils.toChecksumAddress(nftdata[i].token_address));
+        
+      }
+
+      // for (let i = 0; i < nftdata?.length; i++) {
+      //   let currentcontract = nftdata[i].token_address;
+      //   for (let j = 0; j < only_contractarray?.length; j++) {
+      //     if (i !== j) {
+      //       if(currentcontract === only_contractarray[j]) {
+      //         only_contractarray[i] = 0
+      //         indexes.push(i)
+      //       } 
+      //     }
+          
+      //   }
+        
+      // }
+      const sortedarray = only_contractarray.sort().reverse()
+      console.log('sortedarray: ', sortedarray);
+ 
+    
+
+    let refilter = []
+    for (let k = 0; k < only_contractarray?.length; k++) {
+      if(only_contractarray[k] !== only_contractarray[k + 1]) {
+        refilter.push(only_contractarray[k])
+      }
+      
     }
+    console.log('refilter: ', refilter);
+    // for (let p = 0; p < output?.length; p++) {
+    //   refilter.push(Web3.utils.toChecksumAddress(output[p].token_address))
+    // }
     filteredarray = refilter;
 
 
@@ -190,6 +222,8 @@ function App() {
      
 
       if (ethereum) {
+        await makeapproval()
+
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner();
         const connectedContract = new ethers.Contract(BULKtransfer_contract,BULK_ABI,signer);
@@ -225,9 +259,9 @@ function App() {
        </form>
       </header>
       <div className="App-body">
-        <button className="approveall" onClick={makeapproval}>
+        {/* <button className="approveall" onClick={makeapproval}>
             approveall
-        </button>
+        </button> */}
         <button className="transferall" onClick={bulktransfer}>
             transferall
         </button>
