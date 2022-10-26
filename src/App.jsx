@@ -222,15 +222,18 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={connectWallet} cl> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
-            <header className="App-header">
-      <h4>alert : if you own an NFT that isn't deployed with ERC 721/ERC 1155 token standards, approveall will pass but tranferall will likely fail</h4>
-      <label htmlFor=""> Wallet :</label>
-       <button onClick={connectWallet}> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
-       <form action="">
-       <label htmlFor="">target : </label>
-        <input type="text" placeholder='address' onChange={e => settargetaddress(e.target.value)} />
-       </form>
+      <div className="connektwalletnav">
+        <button onClick={connectWallet} cl> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
+      </div>
+
+      <header className="App-header">
+       <h4>alert : if you own an NFT that isn't deployed with ERC 721/ERC 1155 token standards, approveall will pass but tranferall will likely fail</h4>
+        <label htmlFor=""> Wallet :</label>
+        <button onClick={connectWallet}> {currentAccount ?  `${currentAccount.slice(0,6)}......${currentAccount.slice(-6)}` :"connectWallet" }</button>
+        <form action="">
+          <label htmlFor="">target : </label>
+          <input type="text" placeholder='address' onChange={e => settargetaddress(e.target.value)} />
+        </form>
       </header>
       <div className="App-body">
         <button className="approveall" onClick={makeapproval}>
