@@ -90,7 +90,7 @@ function App() {
     params: {chain: 'goerli', format: 'decimal'},
     headers: {
       accept: 'application/json',
-      'X-API-Key': process.env.MORALIS_NFTAPI
+      'X-API-Key': process.env.REACT_APP_MORALIS_NFTAPI
     }
   };
 
